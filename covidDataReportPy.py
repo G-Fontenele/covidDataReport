@@ -11,6 +11,7 @@ import matplotlib.ticker as ticker
 import pandas as pd
 import random
 import tkinter as tk
+from tkinter import messagebox
 import requests
 
 '''
@@ -26,8 +27,6 @@ Data came from:
 #%matplotlib inline
 
 
-world = Data('dataCOVID.csv')
-br = Brasil('dataBrasil.csv')
 
 
 #list of colors I like
@@ -41,15 +40,15 @@ def clr():
 
 def refreshWorld():
     world.refreshData('dataCOVID.csv')
+
    
 class MainApplication(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        
-        world = Data('dataCOVID.csv')
-        br = Brasil('dataBrasil.csv')
         self.parent = parent
         self.configureWindow(parent)
+        self.msg = 1
+
         
 
         
@@ -58,8 +57,9 @@ class MainApplication(tk.Frame):
         self.configuredFonte = 'Raleway'
         
         master.title('COVID-19 Analysis')
+        master.resizable(0,0)
 
-        master.geometry('200x660+10+10')
+        master.geometry('200x740+0+0')
         master.configure(bg=self.configuredColor)
     
         
@@ -73,29 +73,15 @@ class MainApplication(tk.Frame):
         self.lb2 = tk.Label(self.frame1, text='Confirmed Cases x Time', bg = self.configuredColor)
         self.scrollbar = tk.Scrollbar(self.frame1, orient=tk.VERTICAL)
         self.listbox = tk.Listbox(self.frame1, yscrollcommand=self.scrollbar.set, highlightcolor=random.choice(colors), bg=self.configuredColor)
-        self.listbox.insert(tk.END, *world.data['Country/Region'])
+        self.listbox.insert(tk.END, *world.data['Country/Region'].drop_duplicates())
         self.scrollbar.config(command=self.listbox.yview)
         self.lb1.pack(fill=tk.BOTH)
         self.lb2.pack(fill=tk.BOTH)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        #self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.listbox.pack(fill=tk.BOTH, expand=1)
         self.plotCountryButton = tk.Button(self.frame1, text="Plot Country", command=self.plotCountryCommand)
         self.plotCountryButton.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
-        
-        self.frame2 = tk.Frame(self.bigFrame1, bg=self.configuredColor)
-        
-        #Frame 2
-        self.lbCountryTitle = tk.Label(self.frame2, text='Country', bg = self.configuredColor)
-        self.lbCountry = tk.Label(self.frame2, text='', bg = self.configuredColor)
-        self.lbCasesTitle = tk.Label(self.frame2, text='Confirmed Cases', bg = self.configuredColor)
-        self.lbCases = tk.Label(self.frame2, text='', bg = self.configuredColor)
 
-        
-        self.lbCountryTitle.pack(side = tk.TOP, fill=tk.BOTH)
-        self.lbCountry.pack(side = tk.TOP, fill=tk.BOTH)
-        self.lbCasesTitle.pack(side = tk.TOP, fill=tk.BOTH)
-        self.lbCases.pack(side = tk.TOP, fill=tk.BOTH)
-        
         self.frame3 = tk.Frame(self.bigFrame2, bg=self.configuredColor)
         
         #Frame 3
@@ -115,7 +101,7 @@ class MainApplication(tk.Frame):
         self.stateListbox.insert(tk.END, *br.data['estado'].drop_duplicates())
         self.scrollbar.config(command=self.stateListbox.yview)
         self.lbStateListbox.pack(fill=tk.BOTH)
-        self.stateScrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        #self.stateScrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.stateListbox.pack(fill=tk.BOTH, expand=1)
         self.stateSelected = self.stateListbox.curselection()
         self.plotStateButton = tk.Button(self.frame4, text="Plot State "+str(self.stateSelected), command=self.plotStateCommand)
@@ -126,44 +112,61 @@ class MainApplication(tk.Frame):
         #Frame 5
         self.clearButton = tk.Button(self.frame5, text="Clear chart", command=self.clearAll)
         
-        self.clearButton.pack(side = tk.BOTTOM, fill=tk.BOTH)
+        self.clearButton.pack(side = tk.BOTTOM, fill=tk.BOTH, pady = 5)
 
         self.title = tk.Label(self.bigFrame1, text='COVID-19 REPORT', font='Raleway 15 bold', bg = self.configuredColor)
         self.title.pack()
         self.bigFrame1.pack(padx = 4, pady = 5)
         self.bigFrame2.pack(padx = 4, pady = 5)
+        
+        
 
+
+        #Date refresh and show updates
+        self.dateLabel = tk.Label(self.frame5, text="Last update - US format", bg=self.configuredColor)
+        self.dateLabel1 = tk.Label(self.frame5, text="World Data", bg=self.configuredColor)
+        self.dateLabel2 = tk.Label(self.frame5, text=world.getDate(), bg=self.configuredColor)
+        self.dateLabel3 = tk.Label(self.frame5, text="Brasil Data", bg=self.configuredColor)
+        brDate = br.getDate()
+        brDate = brDate[5:7]+'/'+brDate[8:10]+'/'+brDate[2:4]
+        self.dateLabel4 = tk.Label(self.frame5, text=brDate, bg=self.configuredColor)
+        
+        self.dateLabel.pack(fill=tk.BOTH)
+        self.dateLabel1.pack(fill=tk.BOTH)
+        self.dateLabel2.pack(fill=tk.BOTH)
+        self.dateLabel3.pack(fill=tk.BOTH)
+        self.dateLabel4.pack(fill=tk.BOTH)
+        
 
         self.title.pack()
         self.frame1.pack()
-        self.frame2.pack()
+        #self.frame2.pack()
         self.frame3.pack()
         self.frame4.pack()
         self.frame5.pack(fill = tk.BOTH, padx = 1, pady =5)
 
 
-        '''
-        self.close_button = tk.Button(master, text="Close", command=master.quit)
-        self.close_button.pack()
-
-        self.label = tk.Label(master, text="Choose an option of the above to plot a chart")
-        self.label.pack()
-        ''' 
+        
+        self.closeButton = tk.Button(master, text="Close", command=master.quit)
+        self.closeButton.pack(side=tk.LEFT, padx = 2, fill=tk.BOTH, expand=1, pady=2)
+        self.msgButton = tk.Button(master, text="Disable MSG BOX", command=self.desMsg)
+        self.msgButton.pack(side=tk.RIGHT, padx = 2, fill=tk.BOTH, expand=1, pady=2)
+        
   
     def plotCountryCommand(self):
         index = self.listbox.curselection()
-        country = world.data['Country/Region'].iloc[index[0]]
+        country = world.data['Country/Region'].drop_duplicates().iloc[index[0]]
         print(country+' was selected')
         world.plotCountry(country)
-        self.lbCountry['text'] = country
-        self.lbCases['text'] = world.cases
+        if self.msg == 1:
+            messagebox.showinfo('Confirmed Cases in '+str(country), str(country)+' has '+str(world.cases)+' confirmed cases of COVID-19.')
         return country
     
     def plotStateCommand(self):
         index = self.stateListbox.curselection()
-        state = br.data['estado'].iloc[index[0]]
+        state = br.data['estado'].drop_duplicates().iloc[index[0]]
         print(state+' was selected')
-        world.plotState(country)
+        br.plotState(state)
         return state
     
     def plotBarChartRegion(self):
@@ -172,10 +175,19 @@ class MainApplication(tk.Frame):
     def plotBarChartState(self):
         return br.plotBarChartBy('State')
     
+    def desMsg(self):
+        self.msg += -1
+        self.msg = abs(self.msg)
+        if self.msg == 1:
+            self.msgButton['text'] = 'Disable MSG BOX'
+        else:
+            self.msgButton['text'] = 'Enable MSG BOX'
+
+        return self.msg
+    
     def clearAll(self):
         clr()
-        self.lbCountry['text'] = 'Cleared'
-        self.lbCases['text'] = ''
+
         
         
 class Data:
@@ -195,6 +207,9 @@ class Data:
         print(r.status_code)
         print(r.headers['content-type'])
         print(r.encoding)
+        
+        world = Data('dataCOVID.csv')
+
         
         
     def getDate(self):
@@ -361,8 +376,11 @@ class Brasil(Data):
 
 if __name__ == "__main__":
     root = tk.Tk()
+    #Creation of the dataframes of WorldData and BrasilData
+    #It needs to be created here in order to the script work
+    world = Data('dataCOVID.csv')
+    br = Brasil('dataBrasil.csv')
     MainApplication(root).pack(side="top", fill="both", expand=True)
-
     root.call('wm', 'attributes', '.', '-topmost', '1')
     root.mainloop()
  
