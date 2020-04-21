@@ -145,9 +145,7 @@ class MainApplication(tk.Frame):
         self.dateLabel1 = tk.Label(self.frame5, text="World Data", bg=self.configuredColor)
         self.dateLabel2 = tk.Label(self.frame5, text=world.getDate(), bg=self.configuredColor)
         self.dateLabel3 = tk.Label(self.frame5, text="Brasil Data", bg=self.configuredColor)
-        #The next steps are done in order to get the date in international format not US
         brDate = br.getDate()
-        brDate = brDate[5:7]+'/'+brDate[8:10]+'/'+brDate[2:4]
         self.dateLabel4 = tk.Label(self.frame5, text=brDate, bg=self.configuredColor)
         
         self.dateLabel.pack(fill=tk.BOTH)
@@ -328,7 +326,8 @@ class Brasil(Data):
     def getDate(self):
         dfList = self.data['data']
         date = dfList.iloc[-1]
-        print ('In international Format')
+        #The next steps are done in order to get the date with \\\
+        date = date[5:7]+'/'+date[8:10]+'/'+date[2:4]
         return date
     
     #Gets a group of the states or regions
@@ -375,6 +374,7 @@ class Brasil(Data):
         #Fulfill the list with all the dates
         for item in chart['data']:
             item = str(item)
+            item = item[5:7]+'/'+item[8:10]+'/'+item[2:4]
             dates.append(item)
         ax1.plot(dates,chart['casosAcumulados'])
         ax2.plot(dates,chart['obitosAcumulados'])
