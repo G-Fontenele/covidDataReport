@@ -259,10 +259,10 @@ class Data:
     
     #Used in order to not repeat colors of the list of colors I Chose
     def color(self, lis):
-        color = random.choice(colors)
-        colors.remove(color)
         if len(colors) == 0:
             resetColors()  #If there is no colors to select anymore, it will reset the list
+        color = random.choice(colors)
+        colors.remove(color)
         return color
     
     #This configure the chart for most of the functions
