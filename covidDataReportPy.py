@@ -13,6 +13,9 @@ import random
 import tkinter as tk
 from tkinter import messagebox
 import requests
+import webbrowser
+#from tempfile import NamedTemporaryFile
+
 
 '''
 The program is not generalized.
@@ -169,6 +172,7 @@ class MainApplication(tk.Frame):
         self.msgButton = tk.Button(master, text="Disable MSG BOX", command=self.desMsg)
         self.msgButton.pack(side=tk.RIGHT, padx = 2, fill=tk.BOTH, expand=1, pady=2)
         
+        
     #This will plot the country selected on matplotlib figure
     def plotCountryCommand(self):
         index = self.listbox.curselection()
@@ -194,6 +198,21 @@ class MainApplication(tk.Frame):
     def plotBarChartState(self):
         return br.plotBarChartBy('State')
     
+    def getDataFrame(self, dataframe):
+        br.dfWindow(dataframe)
+        return
+
+    '''    
+    def closeWindow(self):
+        master.quit
+        
+    def data(self):
+        return
+    
+    def helpGuide(self):
+        return
+
+    '''
     def desMsg(self):
         self.msg += -1
         self.msg = abs(self.msg)
@@ -290,6 +309,13 @@ class Data:
         self.configureChart(dataCountry1, country_1, color_1)
         self.configureChart(dataCountry2, country_2, color_2)
         plt.show()
+        
+
+    def viewDf(self):
+        self.data.to_html('f.html')
+        webbrowser.open('f.html')
+
+
 
     #Experiment funcion to plot logxlog chart of the confirmed cases by the new cases per day
     #The results did not go as expected but can be mascared by a function just for analysis purpose
@@ -327,9 +353,20 @@ class Brasil(Data):
         dfList = self.data['data']
         date = dfList.iloc[-1]
         #The next steps are done in order to get the date with \\\
-        date = date[5:7]+'/'+date[8:10]+'/'+date[2:4]
+        date = str(date)
+        print (date)
+        #date = date[5:7]+'/'+date[8:10]+'/'+date[2:4]
         return date
     
+    def viewDf(self, group = ''):
+        if group == '':
+            self.data.to_html('f.html')
+        if group == 'State':
+            self.groupBy('State').to_html('f.html')
+        if group == 'Region':
+            self.groupBy('Region').to_html('f.html')
+        webbrowser.open('f.html')
+        
     #Gets a group of the states or regions
     #In the future it may be able to get states per region
     #not done in this version
@@ -374,7 +411,7 @@ class Brasil(Data):
         #Fulfill the list with all the dates
         for item in chart['data']:
             item = str(item)
-            item = item[5:7]+'/'+item[8:10]+'/'+item[2:4]
+            #item = item[5:7]+'/'+item[8:10]+'/'+item[2:4]
             dates.append(item)
         ax1.plot(dates,chart['casosAcumulados'])
         ax2.plot(dates,chart['obitosAcumulados'])
@@ -412,7 +449,36 @@ class Brasil(Data):
         dataState = self.findDataOf(state)
         self.configureChartForCurve(dataState, state).show()
         
+'''
+STILL  NOT WORKING PO=ROPERLY
+#Define menu class of the interface_______________________________________________________________
+class Menu_system:
+    def __init__(self, janela):
+        self.frame = tk.Frame(janela)
+        self.frame.pack()
+        self.menu = tk.Menu(janela)
+        
+        self.menuArq = tk.Menu(self.menu)
+        #self.menuArq.add_command(label='Open', command=Open)
+        #self.menuArq.add_command(label='Save', command=Save)
+        self.menuArq.add_command(label='Quit', command=MainApplication.closeWindow)
+        self.menu.add_cascade(menu=self.menuArq, label='File')
+        
+        
+        self.menuEdit = tk.Menu(self.menu)
+        self.menuEdit.add_command(label='Clear', command=MainApplication.clearAll(MainApplication))
+        #self.menuEdit.add_command(label='Disable MessageBox', command=MainApplication.desMsg(MainApplication))
+        self.menu.add_cascade(menu=self.menuEdit, label='Edit')
 
+        
+        self.menuHelp = tk.Menu(self.menu)
+        self.menuHelp.add_command(label='Program Data', command=MainApplication.data)
+        self.menuHelp.add_command(label='Guide', command=MainApplication.helpGuide)
+        self.menu.add_cascade(menu=self.menuHelp, label='Help')
+
+
+        janela.config(menu=self.menu)       
+'''
 #App mainloop
 if __name__ == "__main__":
     root = tk.Tk()
@@ -424,7 +490,10 @@ if __name__ == "__main__":
     #If you dont want it, just comment the next line
     MainApplication(root).pack(side="top", fill="both", expand=True)
     root.call('wm', 'attributes', '.', '-topmost', '1')
+    #Uncomment to add the menu system Still not working properly
+    #Menu_system(root)
     root.mainloop()
+
  
 
 #setlimitdate
