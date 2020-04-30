@@ -202,10 +202,10 @@ class MainApplication(tk.Frame):
         return country
     
     def viewCommandCountry(self):
-        world.viewDf()
+        world.viewDf('World_Data.html')
         
     def viewCommandBr(self):
-        br.viewDf()
+        br.viewDf('Brasil_Data.html')
         
     #This is connected to brazilian data
     def plotStateCommand(self):
@@ -226,17 +226,6 @@ class MainApplication(tk.Frame):
         br.dfWindow(dataframe)
         return
 
-    '''    
-    def closeWindow(self):
-        master.quit
-        
-    def data(self):
-        return
-    
-    def helpGuide(self):
-        return
-
-    '''
     def desMsg(self):
         self.msg += -1
         self.msg = abs(self.msg)
@@ -335,9 +324,9 @@ class Data:
         plt.show()
         
 
-    def viewDf(self):
-        self.data.to_html('f.html')
-        webbrowser.open('f.html')
+    def viewDf(self, fileName):
+        self.data.to_html(fileName)
+        webbrowser.open(fileName)
 
 
 
@@ -347,7 +336,7 @@ class Data:
         i=0
         newCases = []
         dataCountry = self.findDataOf(country)
-        print ('dataC size is ' + str(dataCountry.size))
+        #print (dataCountry[1].tolist())
         length = dataCountry.size - 1
         #get the number of daily new cases by iteration
         while i < (length):
@@ -365,6 +354,12 @@ class Data:
         plt.xscale('log') #the same for x
         plt.grid(True)
         plt.plot(dataCountry, newCases)
+        '''
+        plt.title('New Cases x time')
+        plt.xlabel('Time')
+        plt.ylabel('New Confirmed Cases')
+        plt.plot(dataCountry, newCases)
+        '''
         plt.show()
 
 #This is a derivated class from data
@@ -382,14 +377,14 @@ class Brasil(Data):
         date = date[5:7]+'/'+date[8:10]+'/'+date[2:4]
         return date
     
-    def viewDf(self, group = ''):
+    def viewDf(self, fileName, group = ''):
         if group == '':
-            self.data.to_html('f.html')
+            self.data.to_html(fileName)
         if group == 'State':
-            self.groupBy('State').to_html('f.html')
+            self.groupBy('State').to_html(fileName)
         if group == 'Region':
-            self.groupBy('Region').to_html('f.html')
-        webbrowser.open('f.html')
+            self.groupBy('Region').to_html(fileName)
+        webbrowser.open(fileName)
         
     #Gets a group of the states or regions
     #In the future it may be able to get states per region
@@ -470,39 +465,11 @@ class Brasil(Data):
         return fig
     
     def plotState(self, state):
+        clr()
         dataState = self.findDataOf(state)
         self.configureChartForCurve(dataState, state).show()
         
-'''
-STILL  NOT WORKING PO=ROPERLY
-#Define menu class of the interface_______________________________________________________________
-class Menu_system:
-    def __init__(self, janela):
-        self.frame = tk.Frame(janela)
-        self.frame.pack()
-        self.menu = tk.Menu(janela)
-        
-        self.menuArq = tk.Menu(self.menu)
-        #self.menuArq.add_command(label='Open', command=Open)
-        #self.menuArq.add_command(label='Save', command=Save)
-        self.menuArq.add_command(label='Quit', command=MainApplication.closeWindow)
-        self.menu.add_cascade(menu=self.menuArq, label='File')
-        
-        
-        self.menuEdit = tk.Menu(self.menu)
-        self.menuEdit.add_command(label='Clear', command=MainApplication.clearAll(MainApplication))
-        #self.menuEdit.add_command(label='Disable MessageBox', command=MainApplication.desMsg(MainApplication))
-        self.menu.add_cascade(menu=self.menuEdit, label='Edit')
 
-        
-        self.menuHelp = tk.Menu(self.menu)
-        self.menuHelp.add_command(label='Program Data', command=MainApplication.data)
-        self.menuHelp.add_command(label='Guide', command=MainApplication.helpGuide)
-        self.menu.add_cascade(menu=self.menuHelp, label='Help')
-
-
-        janela.config(menu=self.menu)       
-'''
 #App mainloop
 if __name__ == "__main__":
     root = tk.Tk()
