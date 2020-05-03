@@ -14,6 +14,8 @@ import tkinter as tk
 from tkinter import messagebox
 import requests
 import webbrowser
+import seaborn as sns
+
 #from tempfile import NamedTemporaryFile
 
 
@@ -105,6 +107,9 @@ class MainApplication(tk.Frame):
         self.listbox.pack(fill=tk.BOTH, expand=1)
         self.plotCountryButton = tk.Button(self.frame1, text="Plot Country", command=self.plotCountryCommand)
         self.plotCountryButton.pack(fill=tk.BOTH, expand=1)
+        
+        self.buttonLog = tk.Button(self.frame1, text = 'Plot Log Chart', command= self.createLog)
+        self.buttonLog.pack(fill=tk.BOTH, expand = 1, pady=1)
 
         self.frame3 = tk.Frame(self.bigFrame2, bg=self.configuredColor)
         
@@ -136,14 +141,14 @@ class MainApplication(tk.Frame):
         self.lbStateListbox.pack(fill=tk.BOTH)
         #self.stateScrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.stateListbox.pack(fill=tk.BOTH, expand=1)
-        self.stateSelected = self.stateListbox.curselection()
-        self.plotStateButton = tk.Button(self.frame4, text="Plot State "+str(self.stateSelected), command=self.plotStateCommand)
+        #self.stateSelected = self.stateListbox.curselection()
+        self.plotStateButton = tk.Button(self.frame4, text='Plot State', command=self.plotStateCommand)
         self.plotStateButton.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
         
         self.frame5 = tk.Frame(self.bigFrame3, bg=self.configuredColor)
         
         #Frame 5
-        self.clearButton = tk.Button(self.frame5, text="Clear Charts", command=self.clearAll)
+        self.clearButton = tk.Button(self.frame5, text='Clear Charts', command=self.clearAll)
         
         self.clearButton.pack(side = tk.BOTTOM, fill=tk.BOTH, pady = 5)
 
@@ -235,6 +240,16 @@ class MainApplication(tk.Frame):
             self.msgButton['text'] = 'Enable MSG BOX' 
 
         return self.msg
+    
+    def createLog(self):
+        index = self.listbox.curselection()
+        country = world.data['Country/Region'].drop_duplicates().iloc[index[0]]
+        cases = world.logPlot(str(country))
+        if (cases == 0):
+            messagebox.showerror('Error', 'Confirmed Cases in '+str(country)+ ' are too low')
+        else:
+            return cases
+        
     
     def clearAll(self):
         clr()
@@ -333,27 +348,34 @@ class Data:
     #Experiment funcion to plot logxlog chart of the confirmed cases by the new cases per day
     #The results did not go as expected but can be mascared by a function just for analysis purpose
     def logPlot(self, country):
+        clr()
         i=0
         newCases = []
         dataCountry = self.findDataOf(country)
         #print (dataCountry[1].tolist())
         length = dataCountry.size - 1
         #get the number of daily new cases by iteration
+        dailyNewCasesSum = 0
         while i < (length):
             dailyNewCases = dataCountry.iloc[i+1] - dataCountry.iloc[i]
-            print (dailyNewCases)
+            #print (dailyNewCases)
+            dailyNewCasesSum += dailyNewCases
             newCases.append(dailyNewCases)
             i += 1
-        print (newCases)
+        if (dailyNewCasesSum) < 5000:
+            return 0 
+        #print (newCases)
         color = self.color(colors)
         dataCountry.drop(dataCountry.tail(1).index,inplace=True)
-        plt.title('Logaritm scale Cases x New Cases')
+        plt.title('Logaritm Scale - Cases x New Cases')
         plt.xlabel('New Cases')
         plt.ylabel('Confirmed Cases')
         plt.yscale('log') #changes the scale to log on y axis
         plt.xscale('log') #the same for x
         plt.grid(True)
-        plt.plot(dataCountry, newCases)
+        
+        sns.regplot(x=newCases,y=dataCountry,data=dataCountry, fit_reg=True) 
+        
         '''
         plt.title('New Cases x time')
         plt.xlabel('Time')
@@ -361,6 +383,8 @@ class Data:
         plt.plot(dataCountry, newCases)
         '''
         plt.show()
+        
+        return
 
 #This is a derivated class from data
 class Brasil(Data):        
