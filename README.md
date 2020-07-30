@@ -7,5 +7,7 @@ This project was not finished due to changes on the brasilian data source. This 
 
 Fell free to read and use it.
 
+![alt text](https://github.com/G-Fontenele/project_images/blob/master/Imagens/Brasil1.png?raw=true)
+
 The dataset is coming from this link: https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases
 
