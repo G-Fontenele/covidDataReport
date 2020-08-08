@@ -8,9 +8,10 @@ Fell free to read and use it.
 
 # Tkinter App Home
 
-![alt text](https://github.com/G-Fontenele/project_images/blob/master/Imagens/Home.png?raw=true)
-
-It Gives you some options to view COVID-19 Data.
+![alt text](https://github.com/G-Fontenele/project_images/blob/master/Imagens/proffyLanding.png?raw=true)
+*Landing Page WebView*
+![alt text](https://github.com/G-Fontenele/project_images/blob/master/Imagens/proffyLandingMobile.png?raw=true)
+*Landing Page MobileWebView*
 
 # Country Analysis
 
